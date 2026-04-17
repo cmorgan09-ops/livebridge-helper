@@ -1,0 +1,24 @@
+{
+  "name": "livebridge-helper",
+  "version": "1.0.0",
+  "description": "Local service that connects OBS to the LiveBridge backend.",
+  "main": "index.js",
+  "scripts": {
+  "start": "node src/index.js"
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cmorgan09-ops/livebridge-helper.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/cmorgan09-ops/livebridge-helper/issues"
+  },
+  "homepage": "https://github.com/cmorgan09-ops/livebridge-helper#readme",
+  "dependencies": {
+    "dotenv": "^17.4.2"
+  }
+}
