@@ -6,7 +6,8 @@
   "scripts": {
   "start": "node src/index.js",
   "test:obs": "node src/test-obs.js",
-  "test:obs:set": "node src/test-set-obs.js"
+  "test:obs:set": "node src/test-set-obs.js",
+  "test:apply-stream": "node src/test-apply-stream.js"
 },
   "author": "",
   "license": "ISC",

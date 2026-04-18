@@ -6,6 +6,16 @@ class ObsService {
     this.obs = new OBSWebSocket();
     this.connected = false;
   }
+  async applyPreparedStream(stream) {
+    if (!stream || !stream.stream_server || !stream.stream_key) {
+      throw new Error("Prepared stream is missing stream_server or stream_key");
+    }
+
+    return this.setStreamServiceSettings(
+      stream.stream_server,
+      stream.stream_key
+    );
+  }
 
   async connect() {
     try {
