@@ -1,10 +1,7 @@
-const OBSWebSocket = require("obs-websocket-js").default;
 const config = require("./config");
 const { printStatus, printBackendError } = require("./formatters");
+const obsService = require("./obs-service");
 
-const obs = new OBSWebSocket();
-
-let obsConnected = false;
 let lastSnapshot = null;
 let lastObsConnected = null;
 let lastObsStreaming = null;
@@ -18,54 +15,6 @@ async function getJson(path) {
   }
 
   return data;
-}
-
-async function connectToObs() {
-  try {
-    if (obsConnected) return true;
-
-    await obs.connect(config.obsWsUrl, config.obsWsPassword);
-    obsConnected = true;
-    console.log(`Connected to OBS at ${config.obsWsUrl}`);
-    return true;
-  } catch (error) {
-    obsConnected = false;
-    return false;
-  }
-}
-
-async function getObsStatus() {
-  try {
-    const connected = await connectToObs();
-
-    if (!connected) {
-      return {
-        connected: false,
-        streaming: false,
-        configured: false
-      };
-    }
-
-    const streamStatus = await obs.call("GetStreamStatus");
-    const streamService = await obs.call("GetStreamServiceSettings");
-
-    const settings = streamService.streamServiceSettings || {};
-    const server = settings.server || "";
-    const key = settings.key || settings.password || "";
-
-    return {
-      connected: true,
-      streaming: !!streamStatus.outputActive,
-      configured: !!(server && key)
-    };
-  } catch (error) {
-    obsConnected = false;
-    return {
-      connected: false,
-      streaming: false,
-      configured: false
-    };
-  }
 }
 
 function logObsEvents(obsStatus) {
@@ -95,7 +44,7 @@ function logObsEvents(obsStatus) {
 async function checkStatus() {
   try {
     const backendStatus = await getJson("/streams/status");
-    const obsStatus = await getObsStatus();
+    const obsStatus = await obsService.getStreamStatus();
 
     logObsEvents(obsStatus);
 
@@ -117,7 +66,7 @@ async function checkStatus() {
 }
 
 async function main() {
-  console.log("LiveBridge Helper (Structured Mode)");
+  console.log("LiveBridge Helper (Action Layer Mode)");
   console.log(`Backend: ${config.backendUrl}`);
   console.log(`OBS WebSocket: ${config.obsWsUrl}`);
 
