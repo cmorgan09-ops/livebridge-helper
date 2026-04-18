@@ -1,9 +1,6 @@
-require("dotenv").config();
 const OBSWebSocket = require("obs-websocket-js").default;
-
-const BASE_URL = process.env.LIVEBRIDGE_BACKEND_URL || "http://localhost:3000";
-const OBS_WS_URL = process.env.OBS_WS_URL || "ws://127.0.0.1:4455";
-const OBS_WS_PASSWORD = process.env.OBS_WS_PASSWORD || "";
+const config = require("./config");
+const { printStatus, printBackendError } = require("./formatters");
 
 const obs = new OBSWebSocket();
 
@@ -13,7 +10,7 @@ let lastObsConnected = null;
 let lastObsStreaming = null;
 
 async function getJson(path) {
-  const response = await fetch(`${BASE_URL}${path}`);
+  const response = await fetch(`${config.backendUrl}${path}`);
   const data = await response.json();
 
   if (!response.ok) {
@@ -27,9 +24,9 @@ async function connectToObs() {
   try {
     if (obsConnected) return true;
 
-    await obs.connect(OBS_WS_URL, OBS_WS_PASSWORD);
+    await obs.connect(config.obsWsUrl, config.obsWsPassword);
     obsConnected = true;
-    console.log(`Connected to OBS at ${OBS_WS_URL}`);
+    console.log(`Connected to OBS at ${config.obsWsUrl}`);
     return true;
   } catch (error) {
     obsConnected = false;
@@ -111,43 +108,21 @@ async function checkStatus() {
     const current = JSON.stringify(snapshot);
 
     if (current !== lastSnapshot) {
-      const pageReady = !!snapshot.selected_page;
-      const streamReady = !!snapshot.current_stream;
-      const backendReady = pageReady && streamReady;
-      const systemReady =
-        backendReady &&
-        snapshot.obs.connected &&
-        snapshot.obs.configured;
-
-      console.log("\n=== LiveBridge Status Update ===");
-      console.log("Backend reachable: YES");
-      console.log(`Page selected: ${pageReady ? "YES" : "NO"}`);
-      console.log(`Stream prepared: ${streamReady ? "YES" : "NO"}`);
-      console.log(`OBS connected: ${snapshot.obs.connected ? "YES" : "NO"}`);
-      console.log(`OBS streaming: ${snapshot.obs.streaming ? "YES" : "NO"}`);
-      console.log(`OBS configured: ${snapshot.obs.configured ? "YES" : "NO"}`);
-      console.log(`System ready: ${systemReady ? "YES" : "NO"}`);
-
-      if (snapshot.current_stream) {
-        console.log(`Stream Title: ${snapshot.current_stream.title}`);
-      }
-
+      printStatus(snapshot);
       lastSnapshot = current;
     }
   } catch (error) {
-    console.log("\n=== LiveBridge Status Update ===");
-    console.log("Backend reachable: NO");
-    console.log(error.message);
+    printBackendError(error);
   }
 }
 
 async function main() {
-  console.log("LiveBridge Helper (OBS Reaction Mode)");
-  console.log(`Backend: ${BASE_URL}`);
-  console.log(`OBS WebSocket: ${OBS_WS_URL}`);
+  console.log("LiveBridge Helper (Structured Mode)");
+  console.log(`Backend: ${config.backendUrl}`);
+  console.log(`OBS WebSocket: ${config.obsWsUrl}`);
 
   await checkStatus();
-  setInterval(checkStatus, 5000);
+  setInterval(checkStatus, config.pollIntervalMs);
 }
 
 main();
