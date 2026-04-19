@@ -16,7 +16,9 @@ class ObsService {
       stream.stream_key
     );
   }
-
+  getClient() {
+    return this.obs;
+  }
   async connect() {
     try {
       if (this.connected) return true;

@@ -1,6 +1,7 @@
 const config = require("./config");
 const { printStatus, printBackendError } = require("./formatters");
 const obsService = require("./obs-service");
+const obsClient = obsService.getClient();
 
 let lastSnapshot = null;
 let lastObsConnected = null;
@@ -70,8 +71,20 @@ async function main() {
   console.log(`Backend: ${config.backendUrl}`);
   console.log(`OBS WebSocket: ${config.obsWsUrl}`);
 
+  obsClient.on("StreamStateChanged", (event) => {
+    console.log("\nEVENT: StreamStateChanged");
+    console.log(event);
+  });
+
+  obsClient.on("ConnectionClosed", () => {
+    console.log("\nEVENT: OBS connection closed");
+  });
+
+  obsClient.on("ConnectionOpened", () => {
+    console.log("\nEVENT: OBS connection opened");
+  });
+
   await checkStatus();
   setInterval(checkStatus, config.pollIntervalMs);
 }
-
 main();

@@ -7,7 +7,9 @@
   "start": "node src/index.js",
   "test:obs": "node src/test-obs.js",
   "test:obs:set": "node src/test-set-obs.js",
-  "test:apply-stream": "node src/test-apply-stream.js"
+  "test:apply-stream": "node src/test-apply-stream.js",
+  "test:obs:start": "node src/test-start-stream.js",
+  "test:obs:stop": "node src/test-stop-stream.js"
 },
   "author": "",
   "license": "ISC",
